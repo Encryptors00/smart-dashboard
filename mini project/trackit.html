@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Tracker</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .tracker { max-width: 600px; margin: auto; }
+        .topic { margin-bottom: 20px; }
+        .progress-bar { height: 20px; background-color: #f3f3f3; }
+        .progress { height: 20px; background-color: #4CAF50; }
+    </style>
+</head>
+<body>
+    <div class="tracker">
+        <h1>Study Tracker</h1>
+        <input type="text" id="topic-input" placeholder="Enter topic">
+        <input type="number" id="percentage-input" placeholder="Completion %" max="100" min="0">
+        <button onclick="addTopic()">Add Topic</button>
+        
+        <div id="topic-list"></div>
+    </div>
+
+    <script>
+        function addTopic() {
+            const topicInput = document.getElementById('topic-input').value;
+            const percentage = document.getElementById('percentage-input').value;
+            if (topicInput && percentage >= 0 && percentage <= 100) {
+                const topicDiv = document.createElement('div');
+                topicDiv.classList.add('topic');
+
+                const progressContainer = document.createElement('div');
+                progressContainer.classList.add('progress-bar');
+
+                const progress = document.createElement('div');
+                progress.classList.add('progress');
+                progress.style.width = percentage + '%';
+                progressContainer.appendChild(progress);
+
+                topicDiv.innerHTML = `<h3>${topicInput} - ${percentage}% Complete</h3>`;
+                topicDiv.appendChild(progressContainer);
+                
+                document.getElementById('topic-list').appendChild(topicDiv);
+
+                document.getElementById('topic-input').value = '';
+                document.getElementById('percentage-input').value = '';
+            } else {
+                alert("Please enter a valid topic and completion percentage (0-100)");
+            }
+        }
+    </script>
+</body>
+</html>

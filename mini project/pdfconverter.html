@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Converter - Img to PDF, JPG, DOC</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.13.0/pptxgen.min.js"></script>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f7fc;
+    }
+
+    nav {
+      background-color: #333;
+      padding: 14px 20px;
+      color: white;
+      text-align: center;
+      font-size: 20px;
+      position: sticky;
+      top: 0;
+      width: 100%;
+      z-index: 10;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin: 0 15px;
+      font-size: 18px;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .container h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    input[type="file"], select, button {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      width: 80%;
+      max-width: 400px;
+      font-size: 16px;
+      background-color: #fafafa;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+      border: none;
+      width: 50%;
+      margin-top: 20px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .image-preview {
+      max-width: 100%;
+      height: auto;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    select {
+      width: 90%;
+      max-width: 400px;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 50px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .preview-images {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .preview-images img {
+      width: 150px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav>
+    <a href="#">Img to PDF Converter</a>
+  </nav>
+
+  <!-- Container -->
+  <div class="container">
+    <h2>Upload Images to Convert</h2>
+    <input type="file" id="imageInput" accept="image/*" multiple onchange="previewImages()" />
+    <br />
+    <div id="imagePreviews" class="preview-images"></div>
+
+    <br />
+    <label for="formatSelect">Select Output Format:</label>
+    <select id="formatSelect">
+      <option value="pdf">PDF</option>
+      <option value="jpg">JPEG</option>
+      <option value="doc">Word Document</option>
+    </select>
+    <br />
+    
+    <button onclick="convertImages()">Convert</button>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <p>Powered by Your Name - Image Conversion Tool</p>
+  </div>
+
+  <script>
+    let images = [];
+
+    // Preview the uploaded images
+    function previewImages() {
+      const files = document.getElementById("imageInput").files;
+      images = [];
+      const previewContainer = document.getElementById("imagePreviews");
+      previewContainer.innerHTML = '';  // Clear previous previews
+
+      for (let i = 0; i < files.length; i++) {
+        const reader = new FileReader();
+        reader.onloadend = function () {
+          const imgElement = document.createElement("img");
+          imgElement.src = reader.result;
+          previewContainer.appendChild(imgElement);
+          images.push(reader.result); // Store image data
+        }
+        reader.readAsDataURL(files[i]);
+      }
+    }
+
+    // Get selected format from dropdown
+    function getSelectedFormat() {
+      const formatSelect = document.getElementById("formatSelect");
+      return formatSelect.value;
+    }
+
+    // Convert the uploaded images based on selected format
+    function convertImages() {
+      if (images.length === 0) {
+        alert("Please upload images first.");
+        return;
+      }
+
+      const format = getSelectedFormat();
+      if (format === "pdf") {
+        convertToPDF(images);
+      } else if (format === "jpg") {
+        convertToJPEG(images);
+      } else if (format === "doc") {
+        convertToDoc(images);
+      }
+    }
+
+    // Convert Images to PDF (one image per page)
+    function convertToPDF(images) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.width;
+      const pageHeight = doc.internal.pageSize.height;
+
+      images.forEach((image, index) => {
+        const img = new Image();
+        img.src = image;
+
+        img.onload = function () {
+          const aspectRatio = img.width / img.height;
+          let imgWidth = pageWidth - 20; // Leave some padding on the sides
+          let imgHeight = imgWidth / aspectRatio;
+
+          if (imgHeight > pageHeight - 20) {
+            imgHeight = pageHeight - 20;
+            imgWidth = imgHeight * aspectRatio;
+          }
+
+          if (index > 0) {
+            doc.addPage();  // Add a new page for each image
+          }
+
+          doc.addImage(image, 'JPEG', 10, 10, imgWidth, imgHeight);
+
+          if (index === images.length - 1) {
+            doc.save('converted_images.pdf'); // Save the PDF after all pages are added
+          }
+        };
+      });
+    }
+
+    // Convert Images to JPEG (with scaling)
+    function convertToJPEG(images) {
+      images.forEach((image, index) => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        const imgElement = new Image();
+        
+        imgElement.onload = function () {
+          canvas.width = imgElement.width;
+          canvas.height = imgElement.height;
+          ctx.drawImage(imgElement, 0, 0);
+          const dataURL = canvas.toDataURL('image/jpeg');
+          const link = document.createElement('a');
+          link.href = dataURL;
+          link.download = `converted_image_${index + 1}.jpeg`;
+          link.click();
+        }
+        imgElement.src = image;
+      });
+    }
+
+    // Convert Images to Word Document (PPTX format)
+    function convertToDoc(images) {
+      const pptx = new PptxGenJS();
+      images.forEach((image, index) => {
+        const slide = pptx.addSlide();
+        slide.addImage({ data: image, x: 1, y: 1, w: 8, h: 6 });
+      });
+      pptx.save("converted_images.pptx");
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To-Do List</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f4f4f4;
+    }
+
+    .container {
+      text-align: left;
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 500px;  /* Increased width for better text visibility */
+    }
+
+    input, select {
+      padding: 12px;
+      margin-right: 10px;
+      width: calc(70% - 20px);  /* Adjusted width to fit nicely */
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 12px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 20px 0 0;
+    }
+
+    li {
+      margin: 15px 0;
+      padding: 12px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .task-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 85%;
+    }
+
+    .checkbox {
+      margin-right: 10px;
+    }
+
+    button.delete {
+      background-color: red;
+    }
+
+    button.complete {
+      background-color: green;
+    }
+
+    button.delete:hover, button.complete:hover {
+      background-color: #e03e3e;
+    }
+
+    button {
+      border-radius: 4px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+
+    .task-content span {
+      flex: 1; /* Makes the task text grow to fill the available space */
+    }
+
+    .header {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header with dropdown for selecting task type -->
+    <div class="header">
+      <h1>To-Do List</h1>
+      <label for="taskType">Select Task Type:</label>
+      <select id="taskType" onchange="updateTaskType()">
+        <option value="household">Household Work</option>
+        <option value="health">Health Work</option>
+        <option value="study">Study Related</option>
+      </select>
+    </div>
+    
+    <!-- Inputs for adding tasks -->
+    <input type="text" id="taskInput" placeholder="Enter new task" />
+    <input type="date" id="completionDate" />
+    <button onclick="addTask()">Add Task</button>
+
+    <!-- List to display tasks -->
+    <ul id="taskList"></ul>
+  </div>
+
+  <script>
+    let taskCount = 0;
+    let taskType = "Household Work";  // Default task type
+    const tasksByType = {
+      "Household Work": [],
+      "Health Work": [],
+      "Study Related": []
+    };
+
+    // Function to update task type based on dropdown selection
+    function updateTaskType() {
+      const taskTypeSelect = document.getElementById("taskType");
+      taskType = taskTypeSelect.options[taskTypeSelect.selectedIndex].text;
+      document.querySelector("h1").textContent = `${taskType} To-Do List`;
+      displayTasks();
+    }
+
+    // Function to add a task
+    function addTask() {
+      const taskInput = document.getElementById("taskInput");
+      const completionDateInput = document.getElementById("completionDate");
+      const taskValue = taskInput.value.trim();
+      const completionDate = completionDateInput.value;
+
+      if (taskValue === "") {
+        alert("Please enter a task.");
+        return;
+      }
+
+      taskCount++;
+      const taskId = `task-${taskCount}`;
+      const taskDate = new Date();
+      const taskDateStr = `${taskDate.toLocaleDateString()} ${taskDate.toLocaleTimeString()}`;
+
+      const task = {
+        id: taskId,
+        text: taskValue,
+        added: taskDateStr,
+        completionDate: completionDate || "No completion date set",
+        completed: false
+      };
+
+      // Add task to the current selected type
+      tasksByType[taskType].push(task);
+
+      taskInput.value = "";
+      completionDateInput.value = "";
+      taskInput.focus();
+
+      displayTasks();
+      notify(`${taskType} Task added: ${taskValue}`);
+    }
+
+    // Function to display tasks for the selected type
+    function displayTasks() {
+      const taskList = document.getElementById("taskList");
+      taskList.innerHTML = ""; // Clear the list
+
+      const tasks = tasksByType[taskType];
+      tasks.forEach(task => {
+        const taskItem = document.createElement("li");
+        taskItem.id = task.id;
+
+        const taskContent = document.createElement("div");
+        taskContent.classList.add("task-content");
+
+        // Task Text
+        const taskText = document.createElement("span");
+        taskText.textContent = `${task.text} (Added: ${task.added})`;
+
+        // Task Completion Date
+        const taskCompletionDate = document.createElement("span");
+        taskCompletionDate.textContent = `Completion: ${task.completionDate}`;
+
+        taskContent.appendChild(taskText);
+        taskContent.appendChild(taskCompletionDate);
+
+        // Checkbox for task completion
+        const checkBox = document.createElement("input");
+        checkBox.type = "checkbox";
+        checkBox.classList.add("checkbox");
+        checkBox.checked = task.completed;
+        checkBox.onclick = function () {
+          task.completed = checkBox.checked;
+          taskText.style.textDecoration = task.completed ? "line-through" : "none";
+          taskText.style.color = task.completed ? "gray" : "black";
+          notify(task.completed ? "Task completed!" : "Task marked as incomplete.");
+        };
+
+        // Delete button
+        const deleteButton = document.createElement("button");
+        deleteButton.classList.add("delete");
+        deleteButton.textContent = "Delete";
+        deleteButton.onclick = function () {
+          tasksByType[taskType] = tasksByType[taskType].filter(t => t.id !== task.id);
+          displayTasks();
+        };
+
+        taskItem.appendChild(checkBox);
+        taskItem.appendChild(taskContent);
+        taskItem.appendChild(deleteButton);
+
+        taskList.appendChild(taskItem);
+      });
+    }
+
+    // Notification function
+    function notify(message) {
+      if (Notification.permission === "granted") {
+        new Notification(message);
+      } else if (Notification.permission !== "denied") {
+        Notification.requestPermission().then(permission => {
+          if (permission === "granted") {
+            new Notification(message);
+          }
+        });
+      }
+    }
+
+    // Automatically ask for date and time when task is added (optional)
+    window.onload = function () {
+      if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+        Notification.requestPermission();
+      }
+    }
+  </script>
+</body>
+</html>

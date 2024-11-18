@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Whiteboard</title>
+    <link rel="stylesheet" href="board.css">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <div class="top-nav">
+        <div class="logo">My Whiteboard</div>
+        <div class="page-controls">
+            <button onclick="prevPage()">&#9664;</button>
+            <span>Board <input type="number" id="pageNumber" value="1" min="1" onchange="goToPage()"> of <span id="totalPages">1</span></span>
+            <button onclick="nextPage()">&#9654;</button>
+        </div>
+    </div>
+
+    <!-- Sidebar for Tool Selection -->
+    <div class="sidebar">
+        <button onclick="selectTool('pen')">Pen</button>
+        <button onclick="selectTool('eraser')">Eraser</button>
+        <button onclick="selectTool('text')">Text</button>
+        <button onclick="selectTool('shape')">Shapes</button>
+        <input type="color" id="colorPicker" onchange="changeColor()" title="Pick a color">
+        <button onclick="uploadDocument()">Upload</button>
+        <button onclick="saveBoard()">Save</button>
+        <button onclick="clearBoard()">Clear</button>
+    </div>
+
+    <!-- Whiteboard Area -->
+    <div class="whiteboard-container">
+        <canvas id="whiteboard"></canvas>
+    </div>
+
+    <input type="file" id="fileUpload" accept="image/*,application/pdf" style="display: none;" onchange="loadDocument(event)">
+
+    <script src="board.js"></script>
+</body>
+</html>

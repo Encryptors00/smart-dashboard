@@ -1,0 +1,105 @@
+/* Reset and base styling */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    background-color: #f4f4f9;
+}
+
+/* Top navigation bar */
+.top-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    background-color: #333;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+}
+
+.top-nav .logo {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.page-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.page-controls button {
+    background: none;
+    color: #fff;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+}
+
+.page-controls input[type="number"] {
+    width: 50px;
+    text-align: center;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* Sidebar styling */
+.sidebar {
+    position: fixed;
+    top: 50px;
+    left: 0;
+    width: 60px;
+    background-color: #f4f4f4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 0;
+    border-right: 1px solid #ddd;
+    gap: 10px;
+}
+
+.sidebar button,
+.sidebar input[type="color"] {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background-color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar button:hover {
+    background-color: #ddd;
+}
+
+/* Whiteboard container styling */
+.whiteboard-container {
+    margin-top: 50px;
+    margin-left: 60px;
+    height: calc(100vh - 50px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+}
+
+#whiteboard {
+    border: 1px solid #ddd;
+    width: 90%;
+    height: 90%;
+    cursor: crosshair;
+}
